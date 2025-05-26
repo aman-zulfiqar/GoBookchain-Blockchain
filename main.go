@@ -7,6 +7,7 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"time"
 
 	"github.com/gorilla/mux"
 )
@@ -40,10 +41,28 @@ type BlockChain struct {
 
 var Blockchain *BlockChain
 
-func writeblock(w *http.ResponseWriter, r *http.Request){
+func Createblock(prevBlock *Block, checkoutitem BookCheckout) *Block {
+	block := &Block{}
+	block.Pos := prevBlock.Pos + 1
+	block.Time := time.Now().String()
+	block.PrevHash := prevBlock.Hash
+	block.generateHash()
+
+	return block
+}
+
+func (bc *BlockChain) AddBlock(data BookCheckout) {
+	prevBlock := bc.blocks[len(bc.blocks)-1]
+	block := Createblock(prevBlock, data)
+	if ValidBlock(block, prevBlock) {
+		bc.blocks := append(bc.blocks, block)
+	}
+}
+
+func writeblock(w *http.ResponseWriter, r *http.Request) {
 	var checkoutitem BookCheckout
 
-	if err := json.NewDecoder(r.Body).Decode(&BookCheckout); err != nil{
+	if err := json.NewDecoder(r.Body).Decode(&BookCheckout); err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		log.Printf("Could not Write the book checkout:%v", err)
 		w.Write([]byte("could not Write the book"))
@@ -53,9 +72,9 @@ func writeblock(w *http.ResponseWriter, r *http.Request){
 	BlockChain.AddBlock(checkoutitem)
 
 	resp, err := json.MarshalIndent(checkoutitem, "", " ")
-	if err != nil{
+	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
-		log.Printf("Could not marshal payload:%v", err)
+		log.Printf("Could not marshal :%v", err)
 		w.Write([]byte("could not save the checkoutdata"))
 		return
 	}
@@ -75,13 +94,13 @@ func newBook(w *http.ResponseWriter, r *http.Request) {
 	}
 
 	h := md5.New()
-	io.WriteString(h, book.ISBN + book.PublishDate)
+	io.WriteString(h, book.ISBN+book.PublishDate)
 	book.ID = fmt.Sprintf("%x", h.Sum(nil))
 
 	resp, err := json.MarshalIndent(book, "", " ")
-	if err != nil{
+	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
-		log.Printf("could not marshal the oayload:%v", err)
+		log.Printf("could not marshal the:%v", err)
 		w.Write([]byte("could not save the book data"))
 		return
 	}
