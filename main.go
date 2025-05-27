@@ -1,7 +1,10 @@
 package main
 
 import (
+	"bytes"
 	"crypto/md5"
+	"crypto/sha256"
+	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -41,7 +44,17 @@ type BlockChain struct {
 
 var Blockchain *BlockChain
 
-func Createblock(prevBlock *Block, checkoutitem BookCheckout) *Block {
+func generateHash(){
+	bytes , _ := json.Marshal(b.Data)
+
+	Data := string(b.Pos) + b.TimeStrap + string(bytes) + b.PrevHash
+
+	hash := sha256.New()
+	hash.Write([]byte (Data))
+	b.hash := hex.EncodeToString(hash.Sum(nil))
+}
+
+func CreateBlock(prevBlock *Block, checkoutitem BookCheckout) *Block {
 	block := &Block{}
 	block.Pos := prevBlock.Pos + 1
 	block.Time := time.Now().String()
@@ -108,7 +121,18 @@ func newBook(w *http.ResponseWriter, r *http.Request) {
 	w.Write(resp)
 }
 
+func GensisiBlock() *Block{
+	return CreateBlock(&Block{}, BookCheckout{IsGenesis: true})
+}
+
+func NewBlockChain() *BlockChain{
+	return &BlockChain{[]*Block{GensisiBlock()}}
+}
+
 func main() {
+
+	BlockChain = NewBlockChain()
+
 	r := mux.NewRouter()
 	r.HandleFunc("/", getblockchain).Methods("GET")
 	r.HandleFunc("/", writeblock).Methods("POST")
