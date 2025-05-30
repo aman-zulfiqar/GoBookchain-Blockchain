@@ -72,7 +72,7 @@ func (bc *BlockChain) AddBlock(data BookCheckout) {
 	}
 }
 
-func writeblock(w *http.ResponseWriter, r *http.Request) {
+func writeblock(w http.ResponseWriter, r *http.Request) {
 	var checkoutitem BookCheckout
 
 	if err := json.NewDecoder(r.Body).Decode(&BookCheckout); err != nil {
@@ -96,7 +96,7 @@ func writeblock(w *http.ResponseWriter, r *http.Request) {
 	w.Write(resp)
 }
 
-func newBook(w *http.ResponseWriter, r *http.Request) {
+func newBook(w http.ResponseWriter, r *http.Request) {
 	var book Book
 
 	if err := json.NewDecoder(r.Body).Decode(&book); err != nil {
