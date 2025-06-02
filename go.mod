@@ -1,4 +1,4 @@
-module github.com/aman-zulfiqar/blockchain-Golang
+module github.com/aman-zulfiqar/BookBlockChain
 
 go 1.22.5
 
