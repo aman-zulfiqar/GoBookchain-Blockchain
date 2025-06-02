@@ -1,4 +1,4 @@
-readme_content = """\
+
 # GoBookchain
 
 GoBookchain is a lightweight, blockchain-powered book checkout system developed in Go. It leverages blockchain principles—immutability, transparency, and tamper resistance—to track book lending records in a secure and verifiable way.
